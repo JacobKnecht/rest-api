@@ -4,6 +4,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const { sequelize, models } = require('./models');
+const { User, Course } = require('./models');
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
@@ -14,7 +15,31 @@ const app = express();
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
-// TODO setup your api routes here
+//'GET/api/users 200' - returns the currently authenticated user
+app.get('/api/users', (req, res) => {
+  User.findAll({raw: true})
+    .then(users => res.json(users))
+    .catch(err => {
+      console.log('There was an error retrieving the list of users');
+      next(err);
+    });
+});
+
+//'POST/api/users 201' - creates a user, sets the 'Location' header to '/' and
+//returns no content
+
+//'GET/api/courses 200' - returns a list of courses (including the user that
+//owns each course)
+
+//'GET/api/courses/:id 200' - returns the course (including the user that owns
+//the course) for the provided course ID
+
+//'POST/api/courses 201' - creates a course, sets the 'Location' header to the
+//URI for the course, and returns no content
+
+//'PUT/api/courses/:id 204' - updates a course and returns no content
+
+//'DELETE/api/courses/:id 204' - deletes a course and returns no content
 
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
@@ -42,9 +67,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// set our port
-app.set('port', process.env.PORT || 5000);
-
 //test the connection to the database
 console.log('testing the connection to the database');
 sequelize
@@ -54,6 +76,9 @@ sequelize
     return sequelize.sync();
   })
   .catch(err => console.log('connection failed; unable to connect to the database - JMK'));
+
+// set our port
+app.set('port', process.env.PORT || 5000);
 
 // start listening on our port
 const server = app.listen(app.get('port'), () => {
