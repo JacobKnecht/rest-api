@@ -15,6 +15,17 @@ const app = express();
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
+//async/await handler
+const asyncHandler = cb => {
+  return async (req, res, next) => {
+    try {
+      await cb(req, res, next);
+    } catch(err) {
+      next(err);
+    }
+  }
+}
+
 //'GET/api/users 200' - returns the currently authenticated user
 app.get('/api/users', (req, res) => {
   User.findAll({raw: true})
@@ -27,6 +38,7 @@ app.get('/api/users', (req, res) => {
 
 //'POST/api/users 201' - creates a user, sets the 'Location' header to '/' and
 //returns no content
+
 
 //'GET/api/courses 200' - returns a list of courses (including the user that
 //owns each course)
