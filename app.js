@@ -69,6 +69,21 @@ app.get('/api/courses', asyncHandler(async (req, res) => {
 
 //'GET/api/courses/:id 200' - returns the course (including the user that owns
 //the course) for the provided course ID
+app.get('/api/courses/:id', asyncHandler(async (req, res) => {
+    const course = await Course.findAll({
+      where: {
+        id: req.params.id,
+      },
+      include: [
+        {
+          model: User,
+          as: 'user',
+        },
+      ],
+    });
+    res.json(course);
+  })
+);
 
 //'POST/api/courses 201' - creates a course, sets the 'Location' header to the
 //URI for the course, and returns no content
