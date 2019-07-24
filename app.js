@@ -102,6 +102,12 @@ app.put('/api/courses/:id', asyncHandler(async (req, res) => {
 );
 
 //'DELETE/api/courses/:id 204' - deletes a course and returns no content
+app.delete('/api/courses/:id', asyncHandler(async (req, res) => {
+    const course = await Course.findByPk(req.params.id);
+    await course.destroy();
+    res.status(204).json(course);
+  })
+);
 
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
