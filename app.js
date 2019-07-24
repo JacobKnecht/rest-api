@@ -87,6 +87,16 @@ app.get('/api/courses/:id', asyncHandler(async (req, res) => {
 
 //'POST/api/courses 201' - creates a course, sets the 'Location' header to the
 //URI for the course, and returns no content
+app.post('/api/courses', asyncHandler(async (req, res) => {
+    const newCourse = await Course.create({
+      userId: req.body.userId,
+      title: req.body.title,
+      description: req.body.title,
+    });
+    res.location(`/api/courses/${newCourse.id}`);
+    res.status(201).json(newCourse);
+  })
+);
 
 //'PUT/api/courses/:id 204' - updates a course and returns no content
 
