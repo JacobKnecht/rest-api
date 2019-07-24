@@ -41,12 +41,15 @@ app.get('/api/users', asyncHandler(async (req, res) => {
 //'POST/api/users 201' - creates a user, sets the 'Location' header to '/' and
 //returns no content
 app.post('/api/users', asyncHandler(async (req, res) => {
-    const newUser = await User.create({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      emailAddress: req.body.emailAddress,
-      password: req.body.password
-    });
+    const newUser = await User.create(
+      // {
+      //   firstName: req.body.firstName,
+      //   lastName: req.body.lastName,
+      //   emailAddress: req.body.emailAddress,
+      //   password: req.body.password
+      // }
+      req.body
+    );
     res.location('/');
     res.status(201).json(newUser);
   })
@@ -88,17 +91,35 @@ app.get('/api/courses/:id', asyncHandler(async (req, res) => {
 //'POST/api/courses 201' - creates a course, sets the 'Location' header to the
 //URI for the course, and returns no content
 app.post('/api/courses', asyncHandler(async (req, res) => {
-    const newCourse = await Course.create({
-      userId: req.body.userId,
-      title: req.body.title,
-      description: req.body.title,
-    });
+    const newCourse = await Course.create(
+      // {
+      //   userId: req.body.userId,
+      //   title: req.body.title,
+      //   description: req.body.description,
+      // }
+      req.body
+    );
     res.location(`/api/courses/${newCourse.id}`);
     res.status(201).json(newCourse);
   })
 );
 
 //'PUT/api/courses/:id 204' - updates a course and returns no content
+app.put('/api/courses/:id', asyncHandler(async (req, res) => {
+    const updatedCourse = await Course.update(
+      // {
+      //   userId: req.body.userId,
+      //   title: req.body.title,
+      //   description: req.body.description,
+      // },
+      req.body,
+      {
+        where: { id: req.params.id}
+      },
+    );
+    res.status(204).json(updatedCourse);
+  })
+);
 
 //'DELETE/api/courses/:id 204' - deletes a course and returns no content
 
