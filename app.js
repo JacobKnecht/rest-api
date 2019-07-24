@@ -15,30 +15,42 @@ const app = express();
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
+//enable access to req.body
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 //async/await handler
 const asyncHandler = cb => {
   return async (req, res, next) => {
     try {
       await cb(req, res, next);
     } catch(err) {
+      console.log('There was an error - JMK');
       next(err);
     }
   }
 }
 
 //'GET/api/users 200' - returns the currently authenticated user
-app.get('/api/users', (req, res) => {
-  User.findAll({raw: true})
-    .then(users => res.json(users))
-    .catch(err => {
-      console.log('There was an error retrieving the list of users');
-      next(err);
-    });
-});
+app.get('/api/users', asyncHandler(async (req, res) => {
+    const users = await User.findAll({raw: true});
+    res.json(users);
+  })
+);
 
 //'POST/api/users 201' - creates a user, sets the 'Location' header to '/' and
 //returns no content
-
+app.post('/api/users', asyncHandler(async (req, res) => {
+    const newUser = await User.create({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      emailAddress: req.body.emailAddress,
+      password: req.body.password
+    });
+    res.location('/');
+    res.json(newUser);
+  })
+);
 
 //'GET/api/courses 200' - returns a list of courses (including the user that
 //owns each course)
