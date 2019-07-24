@@ -48,12 +48,24 @@ app.post('/api/users', asyncHandler(async (req, res) => {
       password: req.body.password
     });
     res.location('/');
-    res.json(newUser);
+    res.status(201).json(newUser);
   })
 );
 
 //'GET/api/courses 200' - returns a list of courses (including the user that
 //owns each course)
+app.get('/api/courses', asyncHandler(async (req, res) => {
+    const courses = await Course.findAll({
+      include: [
+        {
+          model: User,
+          as: 'user',
+        },
+      ],
+    });
+    res.json(courses);
+  })
+);
 
 //'GET/api/courses/:id 200' - returns the course (including the user that owns
 //the course) for the provided course ID
