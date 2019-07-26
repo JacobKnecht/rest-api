@@ -24,7 +24,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
+        isEmail: { msg: 'User.emailAddress property must be a valid email address' },
         notEmpty: { msg: 'User.emailAddress property is required' },
+      },
+      unique: {
+        args: true,
+        msg: 'User.emailAddress property must be unique to each user'
       },
     },
     password: {
