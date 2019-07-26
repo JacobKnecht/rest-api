@@ -57,7 +57,7 @@ app.get('/api/users', asyncHandler(async (req, res) => {
 app.post('/api/users', asyncHandler(async (req, res) => {
     const newUser = await User.create(req.body);
     res.location('/');
-    res.status(201).json(newUser);
+    res.status(201).end();
   })
 );
 
@@ -99,19 +99,15 @@ app.get('/api/courses/:id', asyncHandler(async (req, res) => {
 app.post('/api/courses', asyncHandler(async (req, res) => {
     const newCourse = await Course.create(req.body);
     res.location(`/api/courses/${newCourse.id}`);
-    res.status(201).json(newCourse);
+    res.status(201).end();
   })
 );
 
 //'PUT/api/courses/:id 204' - updates a course and returns no content
 app.put('/api/courses/:id', asyncHandler(async (req, res) => {
-    const updatedCourse = await Course.update(
-      req.body,
-      {
-        where: { id: req.params.id}
-      },
-    );
-    res.status(204).json(updatedCourse);
+    const courseToUpdate = await Course.findByPk(req.params.id);
+    await courseToUpdate.update(req.body);
+    res.status(204).end();
   })
 );
 
@@ -119,7 +115,7 @@ app.put('/api/courses/:id', asyncHandler(async (req, res) => {
 app.delete('/api/courses/:id', asyncHandler(async (req, res) => {
     const course = await Course.findByPk(req.params.id);
     await course.destroy();
-    res.status(204).json(course);
+    res.status(204).end();
   })
 );
 
