@@ -26,6 +26,16 @@ const asyncHandler = cb => {
       await cb(req, res, next);
     } catch(err) {
       console.log('There was an error - JMK');
+      if(err.name === 'SequelizeValidationError') {
+        //console.log(err.message);
+        let errorString = '\n';
+        for(let error in err.errors) {
+          //console.log(err.errors[error].message);
+          errorString += `${err.errors[error].message}\n`;
+        }
+        err.status = 400;
+        console.log(errorString);
+      }
       next(err);
     }
   }
@@ -128,7 +138,6 @@ app.use((err, req, res, next) => {
   if (enableGlobalErrorLogging) {
     console.error(`Global error handler: ${JSON.stringify(err.stack)}`);
   }
-
   res.status(err.status || 500).json({
     message: err.message,
     error: {},
