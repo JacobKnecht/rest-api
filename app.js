@@ -26,6 +26,7 @@ const asyncHandler = cb => {
       await cb(req, res, next);
     } catch(err) {
       console.log('There was an error - JMK');
+      console.log(err.name);
       if(err.name === 'SequelizeValidationError') {
         //console.log(err.message);
         let errorString = '\n';
@@ -35,6 +36,9 @@ const asyncHandler = cb => {
         }
         err.status = 400;
         console.log(errorString);
+      }
+      if(err.name === 'SequelizeUniqueConstraintError') {
+        err.status = 400;
       }
       next(err);
     }
