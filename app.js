@@ -33,12 +33,46 @@ const asyncHandler = cb => {
   }
 }
 
-
+//user authentication middleware
+const authenticateUser = async (req, res, next) => {
+  let message = null;
+  const credentials = auth(req);
+  if(credentials) {
+    const user = await User.findOne({
+        raw: true,
+        where: {
+          emailAddress: credentials.name,
+        },
+    });
+    if(user) {
+      const authenticated = bcryptjs.compareSync(credentials.pass, user.password);
+      if(authenticated) {
+        console.log(`authentication successful for user: ${user.firstName} ${user.lastName}`);
+        req.body = user;
+      } else {
+        message = `authentication failed for user: ${user.firstName} ${user.lastName}`;
+      }
+    } else {
+      message = `user not found for email address: ${credentials.name}`;
+    }
+  } else {
+    message = 'authorization header not found';
+  }
+  if(message) {
+    console.warn(message);
+    const err = new Error('access denied');
+    err.status = 401;
+    next(err);
+  } else {
+    next();
+  }
+}
 
 //'GET/api/users 200' - returns the currently authenticated user
-app.get('/api/users', asyncHandler(async (req, res) => {
-    const users = await User.findAll({raw: true});
-    res.json(users);
+app.get('/api/users', authenticateUser, asyncHandler(async (req, res) => {
+    //const users = await User.findAll({raw: true});
+    const user = req.body;
+    res.json(user);
   })
 );
 
