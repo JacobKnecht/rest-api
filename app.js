@@ -91,9 +91,12 @@ app.post('/api/courses', asyncHandler(async (req, res) => {
 
 //'PUT/api/courses/:id 204' - updates a course and returns no content
 app.put('/api/courses/:id', asyncHandler(async (req, res) => {
-    const courseToUpdate = await Course.findByPk(req.params.id);
-    await courseToUpdate.update(req.body);
-    console.log(req.body);
+    let course = await Course.findByPk(req.params.id);
+    course.title = req.body.title;
+    course.description = req.body.description;
+    course.estimatedTime = req.body.estimatedTime;
+    course.materialsNeeded = req.body.materialsNeeded;
+    course = await course.save();
     res.status(204).end();
   })
 );
@@ -135,6 +138,7 @@ app.use((err, req, res, next) => {
   if(err.name === 'SequelizeUniqueConstraintError') {
     err.status = 400;
   }
+  console.log(err.name);
   res.status(err.status || 500).json({
     message: err.message,
     error: {},
