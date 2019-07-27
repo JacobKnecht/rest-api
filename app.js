@@ -26,20 +26,6 @@ const asyncHandler = cb => {
       await cb(req, res, next);
     } catch(err) {
       console.log('There was an error - JMK');
-      console.log(err.name);
-      if(err.name === 'SequelizeValidationError') {
-        //console.log(err.message);
-        let errorString = '\n';
-        for(let error in err.errors) {
-          //console.log(err.errors[error].message);
-          errorString += `${err.errors[error].message}\n`;
-        }
-        err.status = 400;
-        console.log(errorString);
-      }
-      if(err.name === 'SequelizeUniqueConstraintError') {
-        err.status = 400;
-      }
       next(err);
     }
   }
@@ -107,6 +93,7 @@ app.post('/api/courses', asyncHandler(async (req, res) => {
 app.put('/api/courses/:id', asyncHandler(async (req, res) => {
     const courseToUpdate = await Course.findByPk(req.params.id);
     await courseToUpdate.update(req.body);
+    console.log(req.body);
     res.status(204).end();
   })
 );
@@ -137,6 +124,16 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   if (enableGlobalErrorLogging) {
     console.error(`Global error handler: ${JSON.stringify(err.stack)}`);
+  }
+  if(err.name === 'SequelizeValidationError') {
+    let errorString = '\n';
+    for(let error in err.errors) {
+      errorString += `${err.errors[error].message}\n`;
+    }
+    err.status = 400;
+  }
+  if(err.name === 'SequelizeUniqueConstraintError') {
+    err.status = 400;
   }
   res.status(err.status || 500).json({
     message: err.message,
