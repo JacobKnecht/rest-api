@@ -2,6 +2,7 @@
   "development": {
     "storage": "fsjstd-restapi.db",
     "dialect": "sqlite",
+    "logging": false,
     "operatorsAliases": false
   },
   "test": {
