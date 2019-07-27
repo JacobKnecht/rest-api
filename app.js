@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const { sequelize, models } = require('./models');
 const { User, Course } = require('./models');
 const bcryptjs = require('bcryptjs');
+const auth = require('basic-auth');
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
@@ -31,6 +32,8 @@ const asyncHandler = cb => {
     }
   }
 }
+
+
 
 //'GET/api/users 200' - returns the currently authenticated user
 app.get('/api/users', asyncHandler(async (req, res) => {
