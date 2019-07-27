@@ -42,6 +42,7 @@ app.get('/api/users', asyncHandler(async (req, res) => {
 //'POST/api/users 201' - creates a user, sets the 'Location' header to '/' and
 //returns no content
 app.post('/api/users', asyncHandler(async (req, res) => {
+    req.body.password = bcryptjs.hashSync(req.body.password);
     const newUser = await User.create(req.body);
     res.location('/');
     res.status(201).end();
