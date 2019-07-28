@@ -48,7 +48,11 @@ const authenticateUser = async (req, res, next) => {
       const authenticated = bcryptjs.compareSync(credentials.pass, user.password);
       if(authenticated) {
         console.log(`authentication successful for user: ${user.firstName} ${user.lastName}`);
-        req.body = user;
+        if(req.body.userId) {
+          req.body.userId = user.id;
+        } else {
+          req.body.id = user.id;
+        }
       } else {
         message = `authentication failed for user: ${user.firstName} ${user.lastName}`;
       }
@@ -70,8 +74,8 @@ const authenticateUser = async (req, res, next) => {
 
 //'GET/api/users 200' - returns the currently authenticated user
 app.get('/api/users', authenticateUser, asyncHandler(async (req, res) => {
-    //const users = await User.findAll({raw: true});
-    const user = req.body;
+    //const user = await User.findAll({raw: true});
+    const user = await User.findByPk(req.body.id);
     res.json(user);
   })
 );
@@ -79,8 +83,12 @@ app.get('/api/users', authenticateUser, asyncHandler(async (req, res) => {
 //'POST/api/users 201' - creates a user, sets the 'Location' header to '/' and
 //returns no content
 app.post('/api/users', asyncHandler(async (req, res) => {
-    req.body.password = bcryptjs.hashSync(req.body.password);
-    const newUser = await User.create(req.body);
+    if(req.body) {
+      req.body.password = await bcryptjs.hashSync(req.body.password);
+      const newUser = await User.create(req.body);
+    } else {
+      const newUser = await newUser.create(req.body);
+    }
     res.location('/');
     res.status(201).end();
   })
@@ -121,7 +129,8 @@ app.get('/api/courses/:id', asyncHandler(async (req, res) => {
 
 //'POST/api/courses 201' - creates a course, sets the 'Location' header to the
 //URI for the course, and returns no content
-app.post('/api/courses', asyncHandler(async (req, res) => {
+app.post('/api/courses', authenticateUser, asyncHandler(async (req, res) => {
+    console.log(req.body);
     const newCourse = await Course.create(req.body);
     res.location(`/api/courses/${newCourse.id}`);
     res.status(201).end();
@@ -130,6 +139,7 @@ app.post('/api/courses', asyncHandler(async (req, res) => {
 
 //'PUT/api/courses/:id 204' - updates a course and returns no content
 app.put('/api/courses/:id', asyncHandler(async (req, res) => {
+    console.log(req.body);
     let course = await Course.findByPk(req.params.id);
     course.title = req.body.title;
     course.description = req.body.description;
@@ -142,6 +152,7 @@ app.put('/api/courses/:id', asyncHandler(async (req, res) => {
 
 //'DELETE/api/courses/:id 204' - deletes a course and returns no content
 app.delete('/api/courses/:id', asyncHandler(async (req, res) => {
+    console.log(req.body);
     const course = await Course.findByPk(req.params.id);
     await course.destroy();
     res.status(204).end();
