@@ -139,7 +139,7 @@ app.post('/api/courses', authenticateUser, asyncHandler(async (req, res) => {
 
 //'PUT/api/courses/:id 204' - updates a course and returns no content
 app.put('/api/courses/:id', authenticateUser, asyncHandler(async (req, res, next) => {
-    console.log(req.body);
+    //console.log(req.body);
     let course = await Course.findByPk(req.params.id);
     if(course.userId === req.body.userId) {
       course.title = req.body.title;
@@ -157,11 +157,17 @@ app.put('/api/courses/:id', authenticateUser, asyncHandler(async (req, res, next
 );
 
 //'DELETE/api/courses/:id 204' - deletes a course and returns no content
-app.delete('/api/courses/:id', asyncHandler(async (req, res, next) => {
+app.delete('/api/courses/:id', authenticateUser, asyncHandler(async (req, res, next) => {
     console.log(req.body);
     const course = await Course.findByPk(req.params.id);
-    await course.destroy();
-    res.status(204).end();
+    if(course.userId === req.body.userId) {
+      await course.destroy();
+      res.status(204).end();
+    } else {
+      const err = new Error('forbidden');
+      err.status = 403;
+      next(err);
+    }
   })
 );
 
