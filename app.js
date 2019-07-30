@@ -207,6 +207,9 @@ app.use((err, req, res, next) => {
   });
 });
 
+// set our port
+app.set('port', process.env.PORT || 5000);
+
 //test the connection to the database
 console.log('testing the connection to the database');
 sequelize
@@ -215,12 +218,10 @@ sequelize
     console.log('connection successful; synchronizing models to database - JMK');
     return sequelize.sync();
   })
+  .then(() => {
+    // start listening on our port
+    const server = app.listen(app.get('port'), () => {
+      console.log(`Express server is listening on port ${server.address().port}`);
+    });
+  })
   .catch(err => console.log('connection failed; unable to connect to the database - JMK'));
-
-// set our port
-app.set('port', process.env.PORT || 5000);
-
-// start listening on our port
-const server = app.listen(app.get('port'), () => {
-  console.log(`Express server is listening on port ${server.address().port}`);
-});
