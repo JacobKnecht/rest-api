@@ -48,9 +48,9 @@ const authenticateUser = async (req, res, next) => {
       const authenticated = bcryptjs.compareSync(credentials.pass, user.password);
       if(authenticated) {
         console.log(`authentication successful for user: ${user.firstName} ${user.lastName}`);
-        if(req.body.userId) {
+        if(req.originalUrl.includes('courses')) {
           req.body.userId = user.id;
-        } else {
+        } else if(req.originalUrl.includes('users')) {
           req.body.id = user.id;
         }
       } else {
@@ -130,7 +130,7 @@ app.get('/api/courses/:id', asyncHandler(async (req, res) => {
 //'POST/api/courses 201' - creates a course, sets the 'Location' header to the
 //URI for the course, and returns no content
 app.post('/api/courses', authenticateUser, asyncHandler(async (req, res) => {
-    console.log(req.body);
+    //console.log(req.body);
     const newCourse = await Course.create(req.body);
     res.location(`/api/courses/${newCourse.id}`);
     res.status(201).end();
@@ -138,20 +138,26 @@ app.post('/api/courses', authenticateUser, asyncHandler(async (req, res) => {
 );
 
 //'PUT/api/courses/:id 204' - updates a course and returns no content
-app.put('/api/courses/:id', asyncHandler(async (req, res) => {
+app.put('/api/courses/:id', authenticateUser, asyncHandler(async (req, res, next) => {
     console.log(req.body);
     let course = await Course.findByPk(req.params.id);
-    course.title = req.body.title;
-    course.description = req.body.description;
-    course.estimatedTime = req.body.estimatedTime;
-    course.materialsNeeded = req.body.materialsNeeded;
-    course = await course.save();
-    res.status(204).end();
+    if(course.userId === req.body.userId) {
+      course.title = req.body.title;
+      course.description = req.body.description;
+      course.estimatedTime = req.body.estimatedTime;
+      course.materialsNeeded = req.body.materialsNeeded;
+      course = await course.save();
+      res.status(204).end();
+    } else {
+      const err = new Error('forbidden');
+      err.status = 403;
+      next(err);
+    }
   })
 );
 
 //'DELETE/api/courses/:id 204' - deletes a course and returns no content
-app.delete('/api/courses/:id', asyncHandler(async (req, res) => {
+app.delete('/api/courses/:id', asyncHandler(async (req, res, next) => {
     console.log(req.body);
     const course = await Course.findByPk(req.params.id);
     await course.destroy();
