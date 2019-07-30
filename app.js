@@ -98,10 +98,16 @@ app.post('/api/users', asyncHandler(async (req, res) => {
 //owns each course)
 app.get('/api/courses', asyncHandler(async (req, res) => {
     const courses = await Course.findAll({
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
       include: [
         {
           model: User,
           as: 'user',
+          attributes: {
+            exclude: ['password', 'createdAt', 'updatedAt'],
+          },
         },
       ],
     });
@@ -116,10 +122,16 @@ app.get('/api/courses/:id', asyncHandler(async (req, res) => {
       where: {
         id: req.params.id,
       },
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
       include: [
         {
           model: User,
           as: 'user',
+          attributes: {
+            exclude: ['password', 'createdAt', 'updatedAt'],
+          },
         },
       ],
     });
