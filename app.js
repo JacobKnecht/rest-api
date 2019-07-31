@@ -207,7 +207,7 @@ app.delete('/api/courses/:id', authenticateUser, asyncHandler(async (req, res, n
       res.status(204).end();
     } else {
       //users may not delete courses that they do not own
-      const err = new Error('forbidden');
+      const err = new Error('Forbidden');
       err.status = 403;
       next(err);
     }
@@ -254,12 +254,12 @@ app.use((err, req, res, next) => {
 app.set('port', process.env.PORT || 5000);
 
 //test the connection to the database
-console.log('testing the connection to the database');
+console.log('Testing the connection to the database');
 sequelize
   .authenticate() //attempt to authenticate database
   .then(() => {
     //if database is authenticated, sync the database
-    console.log('connection successful; synchronizing models to database - JMK');
+    console.log('Connection successful - synchronizing models to database');
     return sequelize.sync();
   })
   .then(() => {
@@ -269,4 +269,4 @@ sequelize
       console.log(`Express server is listening on port ${server.address().port}`);
     });
   }) //database authentication failed - notify user
-  .catch(err => console.log('connection failed; unable to connect to the database - JMK'));
+  .catch(err => console.log('Connection failed - unable to connect to the database'));
