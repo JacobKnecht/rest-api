@@ -87,7 +87,14 @@ const authenticateUser = async (req, res, next) => {
 
 //'GET/api/users 200' - returns the currently authenticated user
 app.get('/api/users', authenticateUser, asyncHandler(async (req, res) => {
-    const user = await User.findByPk(req.body.id);
+    const user = await User.findByPk(
+      req.body.id,
+      {
+        attributes: {
+          exclude: ['password', 'createdAt', 'updatedAt'],
+        },
+      }
+    );
     res.json(user);
   })
 );
@@ -261,5 +268,5 @@ sequelize
     const server = app.listen(app.get('port'), () => {
       console.log(`Express server is listening on port ${server.address().port}`);
     });
-  }) //database authentication failed - notify user 
+  }) //database authentication failed - notify user
   .catch(err => console.log('connection failed; unable to connect to the database - JMK'));
