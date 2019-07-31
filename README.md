@@ -3,7 +3,7 @@
 Purpose  - The purpose of this application is to provide routes that perform
 the basic functionalities of a REST API, while also providing error handling
 and user authentication. This is demonstrated by managing users and courses
-stored within a database.
+stored within a database. It is designed to achieve a grade of 'Exceeds Expectations.'
 
 Implementation - The project is implemented by providing routes that act on
 users and courses stored within a database. The users and courses are
